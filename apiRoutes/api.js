@@ -6,12 +6,26 @@ const helpers = require("./helper");
 
 const emailing = require("../emailing/emailing");
 const newVacancy = require("../vacancyPost/vacancyPost");
+const recordNewsLetters = require("../emailing/newsletters");
+const storeInLocal = require("../emailing/gallery");
+const retrieveForViewing = require("../emailing/retrieveForViewing");
+const authentication = require("../emailing/authentication");
+
 const mysql = require("mysql");
 const moment = require("moment");
+
 const path = require("path");
+
+route.get("/", function (req, res) {
+  res.send({
+    status: 200,
+    message: "Hello friend!",
+  });
+});
 
 route.post("/api/news_letter", emailing.newsLetter);
 route.post("/api/contact_us", emailing.contactUs);
+
 // route.get("/api/new_vacancy", newVacancy.newVacancy);
 
 const storage = multer.diskStorage({
@@ -64,10 +78,9 @@ route.post("/api/new_vacancy", (req, res) => {
       } else if (err) {
         return res.send(err);
       }
-
-      connection.query(
-        `INSERT INTO vacancy_notices VALUES('',${req.body.job_title},${d},${req.file.path})`
-      );
+      const insertQuery = `INSERT INTO vacancy_notices VALUES(?,?,?,?)`;
+      const insertParams = ["", req.body.job_title, d, req.file.path];
+      connection.query(insertQuery, insertParams);
       connection.end();
 
       // Display uploaded image for user validation
@@ -83,5 +96,38 @@ route.post("/api/new_vacancy", (req, res) => {
     });
   }
 });
+
+route.get("/api/record_emails", recordNewsLetters.recordEmails);
+
+// Set up multer storage engine
+const storage2 = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./imageUploads"); // Upload directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname); // File name
+  },
+});
+
+const upload = multer({ storage: storage2 });
+
+route.post(
+  "/api/upload_images",
+  upload.array("photos"),
+  storeInLocal.storeFile
+);
+
+route.get("/api/retrieve_images", retrieveForViewing.retrieveImagesForViewing);
+route.get("/api/images/", retrieveForViewing.serveImagesFromFolder);
+
+const upload2 = multer({ storage: storage2 });
+route.post(
+  "/api/send_to_all",
+  upload2.array("fileDocument"),
+  emailing.sendNewsLetterToAll
+);
+
+route.post("/api/register_account", authentication.register);
+route.post("/api/login", authentication.login);
 
 module.exports = route;
