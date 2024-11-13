@@ -30,6 +30,7 @@ const retrieveImagesForViewing = (req, res) => {
       }
     });
   } catch (error) {
+    console.log(error);
     res.send({
       status: 500,
       message: "server error",
