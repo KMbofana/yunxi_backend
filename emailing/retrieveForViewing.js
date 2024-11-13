@@ -6,28 +6,35 @@ const folderPath = "imageUploads";
 const imageExtensions = [".jpg", ".png", ".jpeg"];
 
 const retrieveImagesForViewing = (req, res) => {
-  let images = [];
-  fs.readdir(folderPath, (err, files) => {
-    if (err) {
-      console.log(err);
-      console.log("in error");
-    } else {
-      files.forEach((file) => {
-        const filePath = path.join(folderPath, file);
-        const fileExtension = path.extname(file);
+  try {
+    let images = [];
+    fs.readdir(folderPath, (err, files) => {
+      if (err) {
+        console.log(err);
+        console.log("in error");
+      } else {
+        files.forEach((file) => {
+          const filePath = path.join(folderPath, file);
+          const fileExtension = path.extname(file);
 
-        if (imageExtensions.includes(fileExtension)) {
-          images.push(file);
-          console.log(`Image found: ${folderPath + "/" + file}`);
-        }
-      });
-      res.send({
-        status: 200,
-        message: "reached",
-        data: images,
-      });
-    }
-  });
+          if (imageExtensions.includes(fileExtension)) {
+            images.push(file);
+            console.log(`Image found: ${folderPath + "/" + file}`);
+          }
+        });
+        res.send({
+          status: 200,
+          message: "reached",
+          data: images,
+        });
+      }
+    });
+  } catch (error) {
+    res.send({
+      status: 500,
+      message: "server error",
+    });
+  }
 };
 
 const getContentType = (fileName) => {
