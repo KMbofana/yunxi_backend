@@ -12,6 +12,10 @@ const retrieveImagesForViewing = (req, res) => {
       if (err) {
         console.log(err);
         console.log("in error");
+        res.send({
+          status: 500,
+          message: "failing to read files",
+        });
       } else {
         files.forEach((file) => {
           const filePath = path.join(folderPath, file);
