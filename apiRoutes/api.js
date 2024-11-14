@@ -10,6 +10,7 @@ const recordNewsLetters = require("../emailing/newsletters");
 const storeInLocal = require("../emailing/gallery");
 const retrieveForViewing = require("../emailing/retrieveForViewing");
 const authentication = require("../emailing/authentication");
+var db2 = require("mysql2-promise")();
 
 const mysql = require("mysql");
 const moment = require("moment");
@@ -44,14 +45,12 @@ const storage = multer.diskStorage({
 
 route.post("/api/new_vacancy", (req, res) => {
   try {
-    var connection = mysql.createConnection({
+    db2.configure({
       host: "localhost",
       user: "root",
       password: "",
       database: "yunxi",
     });
-    connection.connect();
-    console.log("connected");
 
     const d = moment(Date.now()).format("YYYY-MM-DD");
     // const d = "2024-10-16";
@@ -67,8 +66,6 @@ route.post("/api/new_vacancy", (req, res) => {
       // req.file contains information of uploaded file
       // req.body contains information of text fields, if there were any
 
-      console.log(req.body);
-
       if (req.fileValidationError) {
         return res.send(req.fileValidationError);
       } else if (!req.file) {
@@ -79,14 +76,22 @@ route.post("/api/new_vacancy", (req, res) => {
         return res.send(err);
       }
       const insertQuery = `INSERT INTO vacancy_notices VALUES(?,?,?,?)`;
-      const insertParams = ["", req.body.job_title, d, req.file.path];
-      connection.query(insertQuery, insertParams);
-      connection.end();
+      const insertParams = ["", req.body.job_title, d, "req.file.path"];
 
-      // Display uploaded image for user validation
-      res.send(
-        `You have uploaded this file: <hr/><img src="${req.file.path}" width="500"><hr /><a href="./">Upload another document</a>`
-      );
+      db2
+        .query(insertQuery, insertParams)
+        .then(() => {
+          // Display uploaded image for user validation
+          res.send(
+            `You have uploaded this file: <hr/><img src="${req.file.path}" width="500"><hr /><a href="./">Upload another document</a>`
+          );
+        })
+        .catch((err) => {
+          res.send({
+            status: 500,
+            message: err.message,
+          });
+        });
     });
   } catch (error) {
     console.log(error);
@@ -97,7 +102,7 @@ route.post("/api/new_vacancy", (req, res) => {
   }
 });
 
-route.get("/api/record_emails", recordNewsLetters.recordEmails);
+// route.get("/api/record_emails", recordNewsLetters.recordEmails);
 
 // Set up multer storage engine
 const storage2 = multer.diskStorage({
@@ -127,7 +132,7 @@ route.post(
   emailing.sendNewsLetterToAll
 );
 
-route.post("/api/register_account", authentication.register);
-route.post("/api/login", authentication.login);
+// route.post("/api/register_account", authentication.register);
+// route.post("/api/login", authentication.login);
 
 module.exports = route;

@@ -4,16 +4,21 @@ const dns = require("dns");
 const connectToDB = () => {
   try {
     var connection = mysql.createConnection({
-      host: "localhost",
+      // host: "localhost",
+      // user: "root",
+      // password: "",
+      // database: "yunxi",
+      host: "https://yunximysql.fly.dev",
+      port: 3306,
       user: "root",
-      password: "",
+      password: "root",
       database: "yunxi",
     });
-    console.log("connected");
+    console.log("connected!!");
     connection.connect();
     return connection;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     const msg = {
       status: 500,
       message: "failed to connect to server",
@@ -45,7 +50,6 @@ const connectToDB = () => {
 //           status: 500,
 //           message: "failed to connect to server",
 //         };
-
 //         return msg;
 //       }
 //     }

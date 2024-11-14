@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const connection = require("../mysqlconnection");
+// const connection = require("../mysqlconnection");
 const path = require("path");
 
 const newsLetter = (req, res) => {
@@ -25,30 +25,43 @@ const newsLetter = (req, res) => {
     // async..await is not allowed in global scope, must use a wrapper
     async function main() {
       // send mail with defined transport object
-      const conn = connection.connectToDB();
-      const insertQuery = `INSERT INTO news_letter_subscriptions VALUES(?,?,?,?)`;
-      const insertParams = ["", "test", req.body.email, true];
-      conn.query(insertQuery, insertParams, async (error, results, fields) => {
-        if (error) {
-          console.log(error);
-          res.send({
-            status: 500,
-            message: "email could not be sent",
-          });
-        } else {
-          const info = await transporter.sendMail({
-            from: req.body.email, // sender address
-            to: "info@yunxiagriculture.org", // list of receivers
-            subject: "SUBSCRIPTION FOR NEWS", // Subject line
-            text: "Would like to hear more from your organization", // plain text body
-          });
-          console.log("Message sent: %s", info.messageId);
-          console.log(results);
-          res.send({
-            status: 200,
-            message: "email sent",
-          });
-        }
+      // const conn = connection.connectToDB();
+      // const insertQuery = `INSERT INTO news_letter_subscriptions VALUES(?,?,?,?)`;
+      // const insertParams = ["", "test", req.body.email, true];
+      // conn.query(insertQuery, insertParams, async (error, results, fields) => {
+      //   if (error) {
+      //     console.log(error);
+      //     res.send({
+      //       status: 500,
+      //       message: "email could not be sent",
+      //     });
+      //   } else {
+      //     const info = await transporter.sendMail({
+      //       from: req.body.email, // sender address
+      //       to: "info@yunxiagriculture.org", // list of receivers
+      //       subject: "SUBSCRIPTION FOR NEWS", // Subject line
+      //       text: "Would like to hear more from your organization", // plain text body
+      //     });
+      //     console.log("Message sent: %s", info.messageId);
+      //     console.log(results);
+      //     res.send({
+      //       status: 200,
+      //       message: "email sent",
+      //     });
+      //   }
+      // });
+
+      const info = await transporter.sendMail({
+        from: req.body.email, // sender address
+        to: "info@yunxiagriculture.org", // list of receivers
+        subject: "SUBSCRIPTION FOR NEWS", // Subject line
+        text: "Would like to hear more from your organization", // plain text body
+      });
+      console.log("Message sent: %s", info.messageId);
+
+      res.send({
+        status: 200,
+        message: "email sent",
       });
     }
 
