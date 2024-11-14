@@ -18,6 +18,6 @@ app.use(express.static(__dirname + "/public"));
 
 const server = http.createServer(app);
 
-server.listen(3001, () => {
+server.listen(3000, () => {
   console.log("Proxy server now running on port 3003 🤹‍♂️");
 });
